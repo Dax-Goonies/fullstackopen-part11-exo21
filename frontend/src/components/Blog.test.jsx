@@ -56,7 +56,7 @@ describe('<Togglable />', () => {
   })
 })
 
-// TEST: Use blog form
+// TEST: Blog form
 test('<BlogForm /> updates parent state and calls onSubmit', async () => {
   const createBlog = vi.fn()
   const user = userEvent.setup()
