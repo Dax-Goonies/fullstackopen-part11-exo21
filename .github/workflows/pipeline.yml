@@ -1,0 +1,83 @@
+name: Own deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  build_and_test_backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm install  
+      - name: Run backend tests
+        run: npm test
+        env:
+          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI}}
+          SECRET: ${{ secrets.SECRET }}
+
+  build_and_test_frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm install  
+      - name: Check style
+        run: npm run eslint
+      - name: Run frontend tests
+        run: npm test
+      - name: Build
+        run: npm run build
+
+  e2e_tests:
+    needs: [build_and_test_frontend, build_and_test_backend]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./e2e-tests
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Install dependencies (backend/)
+        run: npm install  
+        working-directory: ./
+      - name: Install dependencies (frontend/)
+        run: npm install  
+        working-directory: ./frontend
+      - name: Install dependencies (e2e-tests/)
+        run: npm install  
+      - name: Install Playwright Browsers
+        timeout-minutes: 5
+        run: npx playwright install --with-deps
+      - name: Run E2E tests
+        run: npm test
+        env:
+          TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI}}
+          SECRET: ${{ secrets.SECRET }}
+
+  deploy:     
+    needs: [e2e_tests]
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' && 
+      !contains(toJson(github.event.commits.*.message), '#skip')
+    steps:
+      - name: Trigger deployment
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
