@@ -27,6 +27,7 @@ mongoose.connect(config.MONGODB_URI)
 // Start app
 app.use(express.json())
 app.use(middleware.requestLogger)
+app.use(express.static('frontend/dist'))
 app.use('/api/blogs', blogsRouter)
 app.use('/api/login', loginRouter)
 app.use('/api/users', userRouter)
@@ -36,8 +37,11 @@ if (process.env.NODE_ENV === 'test') {
     app.use('/api/testing', testingRouter)
 }
 
+app.get('/*splat', (req, res) => {
+    res.sendFile(__dirname + '/frontend/dist/index.html')
+})
+
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
-
 
 module.exports = app
