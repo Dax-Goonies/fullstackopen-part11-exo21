@@ -54,14 +54,15 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
-      - name: Install dependencies (backend/)
+      - name: Install dependencies (backend)
         run: npm install  
         working-directory: ./
-      - name: Install dependencies (frontend/)
+      - name: Install dependencies (frontend)
         run: npm install  
         working-directory: ./frontend
-      - name: Install dependencies (e2e-tests/)
+      - name: Install dependencies (e2e-tests)
         run: npm install  
+        working-directory: ./e2e-tests
       - name: Install Playwright Browsers
         timeout-minutes: 5
         run: npx playwright install --with-deps
