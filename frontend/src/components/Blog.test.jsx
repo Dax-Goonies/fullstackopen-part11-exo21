@@ -5,7 +5,7 @@ import BlogForm from './BlogForm'
 import Togglable from './Togglable'
 import { MemoryRouter } from 'react-router-dom'
 
-// TEST: Render blog basic informations
+// TEST: Render blog basic informations in the list
 test('renders title and author, but not url or likes by default', () => {
   const blog = {
     id: '1',
@@ -25,7 +25,7 @@ test('renders title and author, but not url or likes by default', () => {
   expect(link.closest('a')).toHaveAttribute('href', '/blogs/1')
 })
 
-// TEST: Togglable element
+// TEST: Toggle tagglable element
 describe('<Togglable />', () => {
   let container
 
