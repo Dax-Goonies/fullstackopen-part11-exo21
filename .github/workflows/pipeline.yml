@@ -71,6 +71,7 @@ jobs:
         env:
           TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI}}
           SECRET: ${{ secrets.SECRET }}
+          PORT: 3003
 
   deploy:     
     needs: [e2e_tests]
